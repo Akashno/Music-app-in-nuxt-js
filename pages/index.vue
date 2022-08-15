@@ -78,7 +78,7 @@
             max="1"
             v-model="raining"
             step="0.01"
-            class="rs-range w-full left-2 absolute h-2 bottom-16 "
+            class="rs-range w-full left-2 absolute h-2 bottom-16"
             orient="vertical"
           />
           <span @click="toggleRaining()" class="cursor-pointer">
@@ -87,12 +87,10 @@
           </span>
         </div>
 
-        <div
-          class="h-16 flex justify-end align-middle relative items-center"
-        >
-        <span @click="toggleFullScreen()" class="cursor-pointer ab">
-          <img src="fullscreen.png" width="30" alt="" />
-        </span>
+        <div class="h-16 flex justify-end align-middle relative items-center">
+          <span @click="toggleFullScreen()" class="cursor-pointer ab">
+            <img src="fullscreen.png" width="30" alt="" />
+          </span>
         </div>
       </div>
     </div>
@@ -125,22 +123,22 @@ export default {
   watch: {
     raining: {
       handler() {
-        this.$refs.raining.play()
-        this.isRaining = true
+        this.$refs.raining.play();
+        this.isRaining = true;
         this.$refs.raining.volume = this.raining;
       },
     },
     typing: {
       handler() {
-        this.$refs.typing.play()
-        this.isTyping = true
+        this.$refs.typing.play();
+        this.isTyping = true;
         this.$refs.typing.volume = this.typing;
       },
     },
     volume: {
       handler() {
-        this.isMute =false 
-        this.$refs.player.muted = this.isMute
+        this.isMute = false;
+        this.$refs.player.muted = this.isMute;
         this.$refs.player.volume = this.volume;
       },
     },
@@ -154,7 +152,6 @@ export default {
       this.isFullScreen = !this.isFullScreen;
     },
     toggleMute() {
-
       this.isMute = !this.isMute;
       this.$refs.player.muted = this.isMute;
     },
