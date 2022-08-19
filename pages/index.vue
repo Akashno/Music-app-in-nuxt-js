@@ -34,18 +34,18 @@
         </div>
         <div class="flex justify-between items-center p-2">
           <div class="flex items-center px-2">
-            <Emoji @setEmoji="setEmoji" class="mr-4" v-if="noteFullScreen" />
             <SelectFont @setFont="setFont" class="mr-4" v-if="noteFullScreen" />
+            <!-- <Emoji @setEmoji="setEmoji" class="mr-4" v-if="noteFullScreen" /> -->
             <span
               @click="copyToClipboard()"
-              class="cursor-pointer bg-gray-900 p-2 bg-opacity-30 rounded-lg mr-4"
+              class="cursor-pointer bg-gray-900 p-2 bg-opacity-50 rounded-lg mr-4"
               :class="noteFullScreen ? 'text-xs' : 'text-x'"
             >
               copy
             </span>
             <span
               @click="saveToNotes()"
-              class="cursor-pointer bg-gray-900 p-2 bg-opacity-30 rounded-lg"
+              class="cursor-pointer bg-gray-900 p-2 bg-opacity-50 rounded-lg"
             >
               <img src="save.png" :width="noteFullScreen ? '14' : '8'" alt="" />
             </span>
@@ -79,18 +79,36 @@
         </span>
         <div
         @click="setCurrentNote(note)"
-          class="text-xs mb-2 px-2 hover:text-gray-50 text-gray-400 cursor-pointer"
+          class="text-xs mb-2  hover:text-gray-50 text-gray-400 cursor-pointer"
           v-for="(note, index) in notes"
           :key="index"
           v-show="noteHistory"
         >
+        <div class="flex ">
+          <span>
+
+            <img
+              width="15px"
+              src="file.png"
+              alt=""
+              class="mr-1"
+            />
+          </span>
+            <span>
           {{ note.title }}
+            </span>
+        </div>
+        </div>
+        <div v-if="!notes.length" class="text-gray-400 text-xs text-center mt-10">
+          Your saved notes will be shown here
+
         </div>
       </div>
     </div>
     <ToolBar
       @toggleFullScreen="toggleFullScreen"
       @showTodo="showTodo = !showTodo"
+      v-show="!noteFullScreen"
     />
   </div>
 </template>
@@ -105,8 +123,8 @@ export default {
   },
   data() {
     return {
-      showTodo: true,
-      noteFullScreen: true,
+      showTodo: false,
+      noteFullScreen: false,
       notes: [],
       noteHistory: false,
       isFullScreen: false,
