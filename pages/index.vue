@@ -1,86 +1,168 @@
 <template>
   <div
     id="wrapper"
-    class=" flex p-4 justify-end bg-primary  h-screen w-screen bg-cover bg-no-repeat flex-col  "
+    class="flex p-4 justify-end bg-primary h-screen w-screen bg-cover bg-no-repeat flex-col"
     style="background-image: url('lofi2.gif')"
   >
-       <div v-if="showTodo"  class="transparentNoteWrapper bg-opacity-60 bg-gray-900 p-2 rounded-lg"  :class="noteFullScreen?' w-full h-full':'w-64 h-64'"  >
-        <div class="border-white w-full h-full text-white p-2" >
-          <textarea placeholder="Express your feelings"  spellcheck="false"  ref="noteArea" v-model="note"  :style="noteFullScreen ?`height:92%;font-family:${selectedFont}` : `height:88%; font-family:${selectedFont}`" autofocus class="bg-transparent w-full  text-xs outline-none focus:outline-none overflow-hidden text-justify"></textarea>
-          <div class="flex justify-end items-center">
-          <Emoji  @setEmoji="setEmoji" class="mr-4" v-if="noteFullScreen"/>    
-          <SelectFont  @setFont="setFont" class="mr-4" v-if="noteFullScreen"/>    
+    <div
+      v-if="showTodo"
+      class="transparentNoteWrapper bg-opacity-60 bg-gray-900 rounded-lg flex"
+      :class="noteFullScreen ? ' w-full h-full' : 'w-64 h-64'"
+    >
+      <div
+        class="border-white w-full h-full text-white flex flex-col justify-between"
+      >
+        <div class="flex h-full p-3">
+          <textarea
+            class="bg-transparent w-full p-2 text-xs outline-none focus:outline-none placeholder-gray-50 overflow-hidden text-justify h-full"
+            placeholder="Write something"
+            spellcheck="false"
+            ref="noteArea"
+            v-model="note"
+            :style="`font-family:${selectedFont}`"
+            autofocus
+          ></textarea>
+          <span v-show="!noteHistory && noteFullScreen">
+            <img
+              width="20px"
+              src="history.png"
+              alt=""
+              class="ml-auto"
+              @click="noteHistory = !noteHistory"
+            />
+          </span>
+        </div>
+        <div class="flex justify-between items-center p-2">
+          <div class="flex items-center px-2">
+            <Emoji @setEmoji="setEmoji" class="mr-4" v-if="noteFullScreen" />
+            <SelectFont @setFont="setFont" class="mr-4" v-if="noteFullScreen" />
+            <span
+              @click="copyToClipboard()"
+              class="cursor-pointer bg-gray-900 p-2 bg-opacity-30 rounded-lg mr-4"
+              :class="noteFullScreen ? 'text-xs' : 'text-x'"
+            >
+              copy
+            </span>
+            <span
+              @click="saveToNotes()"
+              class="cursor-pointer bg-gray-900 p-2 bg-opacity-30 rounded-lg"
+            >
+              <img src="save.png" :width="noteFullScreen ? '14' : '8'" alt="" />
+            </span>
+          </div>
 
           <span
-          @click="copyToClipboard()"
-            class="cursor-pointer bg-gray-900 p-2 bg-opacity-30 rounded-lg mr-2"
-            :class="noteFullScreen ?'text-xs' : 'text-x'"
-          > copy
-          </span>
-          <span
-          @click="makeNoteFullScreen()"
+            @click="makeNoteFullScreen()"
             class="cursor-pointer bg-gray-900 p-2 bg-opacity-30 rounded-lg"
           >
-            <img src="fullscreen.png" :width="noteFullScreen ?'14' : '8'" alt="" />
+            <img
+              src="fullscreen.png"
+              :width="noteFullScreen ? '14' : '8'"
+              alt=""
+            />
           </span>
-          </div>
         </div>
       </div>
-     <ToolBar @toggleFullScreen="toggleFullScreen" @showTodo="showTodo = !showTodo" class="items-end" v-show="!noteFullScreen"/> 
+      <div
+        v-show="noteFullScreen"
+        class="h-100 noteHistory"
+        :class="noteHistory ? 'border-l-2 border-gray-500 w-1/4 p-3 ' : 'w-0 '"
+      >
+        <span>
+          <img
+            width="20px"
+            src="history.png"
+            alt=""
+            class="ml-auto"
+            @click="noteHistory = !noteHistory"
+          />
+        </span>
+        <div
+        @click="setCurrentNote(note)"
+          class="text-xs mb-2 px-2 hover:text-gray-50 text-gray-400 cursor-pointer"
+          v-for="(note, index) in notes"
+          :key="index"
+          v-show="noteHistory"
+        >
+          {{ note.title }}
+        </div>
+      </div>
+    </div>
+    <ToolBar
+      @toggleFullScreen="toggleFullScreen"
+      @showTodo="showTodo = !showTodo"
+    />
   </div>
 </template>
-
 <script>
-import Emoji from '../components/EmojiPicker'
-import SelectFont from '../components/SelectFont'
+import Emoji from "../components/EmojiPicker";
+import SelectFont from "../components/SelectFont";
 export default {
   name: "IndexPage",
-  components:{
+  components: {
     Emoji,
     SelectFont,
   },
   data() {
     return {
-      showTodo:false,
-      noteFullScreen:false,
-      isFullScreen:false,
-      selectedFont:null,
-      note:"",
+      showTodo: true,
+      noteFullScreen: true,
+      notes: [],
+      noteHistory: false,
+      isFullScreen: false,
+      selectedFont: null,
+      note: "",
     };
   },
   methods: {
-    toggleFullScreen(){
+    setCurrentNote(note){
+      debugger
+      this.note =note.content 
+
+    },
+    saveToNotes() {
+      this.notes.push({
+        title: this.note.slice(0,20),
+        content: this.note,
+      });
+    },
+    toggleFullScreen() {
       var element = document.querySelector("#wrapper");
       this.isFullScreen
         ? document.exitFullscreen()
         : element.requestFullscreen();
       this.isFullScreen = !this.isFullScreen;
     },
-    setFont(selectedFont){
-    this.selectedFont = selectedFont
+    setFont(selectedFont) {
+      this.selectedFont = selectedFont;
     },
-    setEmoji(emoji){
-      this.note += emoji
+    setEmoji(emoji) {
+      this.note += emoji;
     },
-    copyToClipboard(){
+    copyToClipboard() {
       this.$refs.noteArea.focus();
-      this.$refs.noteArea.setSelectionRange(0, this.note.length)
-      document.execCommand('copy');
-      this.$refs.noteArea.setSelectionRange(this.note.length, this.note.length)
+      this.$refs.noteArea.setSelectionRange(0, this.note.length);
+      document.execCommand("copy");
+      this.$refs.noteArea.setSelectionRange(this.note.length, this.note.length);
     },
-    makeNoteFullScreen(){
-      this.noteFullScreen = !this.noteFullScreen
-      this.$refs.noteArea.focus()
+    makeNoteFullScreen() {
+      this.noteFullScreen = !this.noteFullScreen;
+      this.$refs.noteArea.focus();
     },
   },
 };
 </script>
 <style scoped>
-.transparentNoteWrapper{
-   transition: height  0.3s ease-in, width  0.3s ease-in  ;
+* {
+  overflow: hidden;
 }
-textarea{
+.noteHistory {
+  transition: width 0.2s linear !important;
+}
+.transparentNoteWrapper {
+  transition: height 0.5s ease-in-out, width 0.5s ease-in-out;
+}
+textarea {
   resize: none;
 }
 </style>
-

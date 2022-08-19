@@ -7,7 +7,7 @@
       class=""
     >
       <p
-        class="text-xl -mt-1 cursor-pointer text-gray-500 dark:hover:text-gray-100 hover:text-gray-800"
+        class="text-xl -mt-1 cursor-pointer hover:text-gray-900"
       >
         ☺
       </p>
