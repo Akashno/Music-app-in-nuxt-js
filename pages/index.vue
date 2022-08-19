@@ -4,14 +4,66 @@
     class="wrapper mx-auto p-4 flex items-end bg-primary align-middle h-screen w-screen bg-cover bg-no-repeat relative "
     style="background-image: url('lofi2.gif')"
   >
-       <div style="" :style="noteFullScreen ?'width:98%;height:88%;   transition: height 0.3s ease-in  ': ''" :class="noteFullScreen?'bottom-20':'w-64 h-64 bottom-20'" class="absolute   bg-opacity-60 bg-gray-900  p-2 rounded-lg"  v-if="!showTodo" >
+       <div style="" :style="noteFullScreen ?'width:98%;height:88%;   transition: height 0.3s ease-in  ': ''" :class="noteFullScreen?'bottom-20':'w-64 h-64 bottom-20'" class="absolute   bg-opacity-60 bg-gray-900  p-2 rounded-lg"  v-if="showTodo" >
+
         <div class=" ease-in border-white w-full h-full text-white p-2" >
-          <textarea spellcheck="false"   ref="noteArea" v-model="note" style="resize:none;" :style="noteFullScreen ?`height:92%;font-family:${selectedFont}` : `height:88%; font-family:${selectedFont}`" autofocus class="bg-transparent w-full  text-xs outline-none focus:outline-none overflow-hidden text-justify"></textarea>
-          <div class="flex justify-end">
-            <select v-if="noteFullScreen" v-model="selectedFont" class="text-xs bg-gray-900 bg-opacity-30 rounded-lg px-2 focus:outline-none mr-2">
+
+          <textarea spellcheck="false"  ref="noteArea" v-model="note" style="resize:none;" :style="noteFullScreen ?`height:92%;font-family:${selectedFont}` : `height:88%; font-family:${selectedFont}`" autofocus class="bg-transparent w-full  text-xs outline-none focus:outline-none overflow-hidden text-justify"></textarea>
+          <div class="flex justify-end align-middle items-center">
+
+    <emoji-picker @emoji="insert" :search="search"  class="mr-4">
+          <div
+            slot="emoji-invoker"
+            slot-scope="{ events: { click: clickEvent } }"
+            @click.stop="clickEvent"
+            class=""
+          >
+            <p
+              class="text-lg cursor-pointer text-gray-500 dark:hover:text-gray-100 hover:text-gray-800"
+            >
+              ☺
+            </p>
+          </div>
+          <div
+            slot="emoji-picker"
+            slot-scope="{ emojis, insert, display }"
+            class="w-48 h-48 absolute bottom-16 overflow-x-hidden bg-gray-800 bg-opacity-40 dark:bg-chatInputBg p-2"
+            style="overflow-y: scroll"
+          >
+            <div class="">
+              <div class="flex justify-between pr-4 pt-4">
+                <input
+                  type="text"
+                  v-model="search"
+                  placeholder="Search for emoji ...."
+                  autofocus
+                  class="dark:bg-chatInputBg dark:text-white dark:text-xs"
+                />
+              </div>
+              <div>
+                <div v-for="(emojiGroup, category) in emojis" :key="category">
+                  <hr class="my-2" />
+                  <div>
+                    <span
+                      class="cursor-pointer"
+                      v-for="(emoji, emojiName) in emojiGroup"
+                      :key="emojiName"
+                      @click="insert(emoji)"
+                      :title="emojiName"
+                      >{{ emoji }}</span
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </emoji-picker>
+
+            <select v-if="noteFullScreen" v-model="selectedFont" class="text-xs bg-gray-900 bg-opacity-30 rounded-lg p-2 focus:outline-none mr-2">
               <option :value="font" v-for="(font,index) in fonts" :key="index" class="" >{{font}}</option>
             </select>
           <span
+          @click="copyToClipboard()"
             class="cursor-pointer bg-gray-900 p-2 bg-opacity-30 rounded-lg mr-2"
             :class="noteFullScreen ?'text-xs' : 'text-x'"
           > copy
@@ -149,12 +201,17 @@
 
 <script>
 import Player from "../methods/Player";
+import EmojiPicker from "vue-emoji-picker";
+
 export default {
   name: "IndexPage",
+  components:{
+    EmojiPicker
+  },
   data() {
     return {
-      showTodo:false,
-      noteFullScreen:false,
+      showTodo:true,
+      noteFullScreen:true,
       fonts:["Arial" , "Verdana ", "Helvetica ", "Tahoma", "Trebuchet MS ", "Times New Roman ", "Georgia ", "Garamond ", "Courier New, Courier, monospace", "Brush Script MT " ],
       selectedFont:null,
       note:"",
@@ -171,6 +228,15 @@ export default {
     this.selectedFont = this.fonts[8]
   },
   methods: {
+    insert(emoji){
+      this.note+= emoji
+    },
+    copyToClipboard(){
+      this.$refs.noteArea.focus();
+      this.$refs.noteArea.setSelectionRange(0, this.note.length)
+      document.execCommand('copy');
+      this.$refs.noteArea.setSelectionRange(this.note.length, this.note.length)
+    },
     makeNoteFullScreen(){
       this.noteFullScreen = !this.noteFullScreen
       this.$refs.noteArea.focus()
